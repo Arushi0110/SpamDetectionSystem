@@ -1,6 +1,8 @@
 import streamlit as st
 from datetime import datetime
 import gspread
+import json
+import os
 from oauth2client.service_account import ServiceAccountCredentials
 
 # --- Page Config ---
@@ -9,21 +11,25 @@ st.set_page_config(page_title="💬 Feedback", layout="centered")
 # --- Google Sheets Setup ---
 def append_to_google_sheet(name, rating, comments):
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
+
+    # ✅ Load creds from secrets (gcp_service_account section)
+    creds_dict = st.secrets["gcp_service_account"]
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(dict(creds_dict), scope)
+
     client = gspread.authorize(creds)
-    sheet = client.open("Diabetes Feedback").sheet1  # Replace with exact sheet name
+    sheet = client.open("Diabetes Feedback").sheet1
 
     row = [name, rating, comments, datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
     sheet.append_row(row)
-
+    
 # --- Title ---
 st.title(":blue[💬 We Value Your Feedback!]")
 st.markdown("<br>", unsafe_allow_html=True)
 
 # --- Info Text ---
 st.markdown("""
-Please share your thoughts about the :blue[**Spam Detection App**].  
-Your feedback helps us improve! 😊
+    Please share your thoughts about the :blue[**Spam Detection App**].
+    Your feedback helps us improve! 😊
 """)
 
 # --- Feedback Form ---
