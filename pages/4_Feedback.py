@@ -18,10 +18,11 @@ def append_to_google_sheet(name, rating, comments):
 
     client = gspread.authorize(creds)
     sheet = client.open("Diabetes Feedback").sheet1
+    sheet.share("pariarushi@gmail.com", perm_type="user", role="writer")
 
     row = [name, rating, comments, datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
     sheet.append_row(row)
-    
+
 # --- Title ---
 st.title(":blue[💬 We Value Your Feedback!]")
 st.markdown("<br>", unsafe_allow_html=True)
