@@ -17,8 +17,10 @@ def append_to_google_sheet(name, rating, comments):
     creds = ServiceAccountCredentials.from_json_keyfile_dict(dict(creds_dict), scope)
 
     client = gspread.authorize(creds)
-    sheet = client.open("Diabetes Feedback").sheet1
-    sheet.share("pariarushi@gmail.com", perm_type="user", role="writer")
+    spreadsheet = client.open("Diabetes Feedback")  # this is the Spreadsheet object
+    spreadsheet.share('pariarushi01@gmail.com', perm_type='user', role='writer')
+    
+    sheet = spreadsheet.sheet1
 
     row = [name, rating, comments, datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
     sheet.append_row(row)
