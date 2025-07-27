@@ -1,0 +1,54 @@
+import streamlit as st
+from datetime import datetime
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
+# --- Page Config ---
+st.set_page_config(page_title="💬 Feedback", layout="centered")
+
+# --- Google Sheets Setup ---
+def append_to_google_sheet(name, rating, comments):
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
+    client = gspread.authorize(creds)
+    sheet = client.open("Diabetes Feedback").sheet1  # Replace with exact sheet name
+
+    row = [name, rating, comments, datetime.now().strftime("%Y-%m-%d %H:%M:%S")]
+    sheet.append_row(row)
+
+# --- Title ---
+st.title(":blue[💬 We Value Your Feedback!]")
+st.markdown("<br>", unsafe_allow_html=True)
+
+# --- Info Text ---
+st.markdown("""
+Please share your thoughts about the :blue[**Spam Detection App**].  
+Your feedback helps us improve! 😊
+""")
+
+# --- Feedback Form ---
+with st.form("feedback_form", clear_on_submit=True):
+    name = st.text_input("👤 **Your Name (optional)**")
+    rating = st.number_input("⭐ **Rate the App (1 = Poor, 5 = Excellent)**", min_value=1, max_value=5, step=1)
+    comments = st.text_area("📝 **Your Feedback**")
+
+    submit = st.form_submit_button(":green[**Submit Message**]")
+
+# --- Save to Google Sheet ---
+if submit:
+    if not name:
+        name = "Anonymous"
+
+    try:
+        append_to_google_sheet(name, rating, comments)
+        st.success("✅ Feedback submitted successfully!")
+
+        with st.expander("📋 Your Submitted Feedback"):
+            st.json({
+                "Name": name,
+                "Rating": rating,
+                "Comments": comments,
+                "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
+    except Exception as e:
+        st.error(f"❌ Failed to submit feedback: {e}")

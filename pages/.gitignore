@@ -1,0 +1,4 @@
+__pycache__/
+creds.json
+.streamlit/secrets.toml
+.env
